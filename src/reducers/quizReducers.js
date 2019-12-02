@@ -1,4 +1,4 @@
-import {ADD_ANSWER, GET_ALL_ANSWER} from '../actions/type';
+import {ADD_ANSWER} from '../actions/type';
 
 const initialState = {
     results: [] // object contain name and value

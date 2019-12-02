@@ -12,32 +12,59 @@ class QuizSection extends Component {
     };
 
     handleFieldChange = (checkedBox, value, name, type) => {
-      //  console.log('----- section component ----', value, name, type);
         if (type == 'multi') {
-            let newValue;
-            if (this.state.value == '') {
-                newValue = value;
-            } else {
-                newValue = this.state.value + ',' + value;
+            let newValue = '';
+            if(checkedBox){
+                if (this.state.value == '') {
+                    newValue = value;
+                } else {
+                    newValue = this.state.value + ',' + value;
+                }
+            }else {
+                const array = this.state.value.split(',');
+                array.forEach(item => {
+                    if(item == value){
+
+                    }else {
+                        if (newValue == '') {
+                            newValue = item;
+                        } else {
+                            newValue = newValue + ',' + item;
+                        }
+                    }
+                })
             }
+
 
             this.setState({
                 value: newValue,
                 isChecked: checkedBox,
                 name
-            })
+            });
+
+            this.props.quizAction({
+                isChecked: checkedBox,
+                value: newValue,
+                name
+            });
         } else {
             this.setState({
                 isChecked: checkedBox,
                 value,
                 name
             });
+
+            this.props.quizAction({
+                isChecked: checkedBox,
+                value,
+                name
+            });
         }
+
     };
 
     handlerNextBtn = e => {
         const t = this.props;
-        t.quizAction(this.state);
         t.clicked(this.state);
 
         this.setState({
@@ -48,11 +75,23 @@ class QuizSection extends Component {
     };
 
     handlerBackBtn = e => {
-       // console.log('--- back button click --');
+        // console.log('--- back button click --');
         this.props.backClick(this.state);
     };
 
+    setPreviousValue = (preValue, array, type) => {
+        if(type == "single"){
+            const output = array.filter(item => item == this.state.value);
+            if(this.state.value == '' || output.length == 0){
+                this.setState({
+                    value : preValue
+                });
+            }
+        }
+    };
+
     render() {
+        console.log('------- value ------' , this.state.value);
         let screenType;
         let answerBlock;
         if (this.props.data.isQuestion && !this.props.data.isEnd) {
@@ -60,12 +99,10 @@ class QuizSection extends Component {
             let answer;
             let answersArray = [this.props.data.answers[0]];
             const name = this.props.data.answers[0].name;
-          //  console.log('---------- section reducer ------' , this.props.quizReducer);
             const output = this.props.quizReducer.results.filter(item => item.name == name);
 
-            if(output.length > 0){
-            //    console.log('--------- output --------' , output);
-                answer = <p>last selected options are '{output[0].answer}'</p>
+            if (output.length > 0) {
+                this.setPreviousValue(output[0].answer, answersArray[0].options, answersArray[0].type);
             }
             if (answersArray[0].type === "single") {
                 answerBlock = answersArray[0].options.map((q, qIndex) => (
@@ -75,6 +112,7 @@ class QuizSection extends Component {
                         option={q}
                         type="single"
                         name={name}
+                        output={this.state.value}
                         onChange={this.handleFieldChange}
                     />
                 ));

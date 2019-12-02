@@ -50,7 +50,7 @@ class QuizScreen extends Component {
     const step = this.state.step;
     const data = this.state.data;
 
-    console.log(this.state.data)
+    //console.log(this.state.data);
     if (this.state.step < data.length) {
 
       this.setState({
